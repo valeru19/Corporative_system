@@ -8,29 +8,54 @@ actor "Мастер" as Master
 actor "Персонал" as Office
 actor "Администратор" as Admin
 
+' Группировка акторов слева
 Staff <|-- Master
 Staff <|-- Office
 Staff <|-- Admin
 
-rectangle "Брадобрей-пати" {
-  (Авторизация в системе) as Auth
+rectangle "Брадобрей-пати" {  
+  (Просмотр каталога) as View
+  (Запись на услугу) as Book
+  (Оставить отзыв) as Feedback
+  (Оплата услуги) as Pay
   
-  Client -- (Просмотр каталога услуг и мастеров)
-  Client -- (Запись на стрижку/услугу)
-  Client -- (Оставить отзыв)
-  Client -- (Оплата услуги)
+  (Управление графиком) as Schedule
+  (Подтверждение записи) as Confirm
+  (Списание материалов) as Inventory
   
-  Master -- (Управление графиком работы)
-  Master -- (Подтверждение записи)
-  Master -- (Списание расходных материалов)
+  (Генерация отчетов) as Reports
+  (Управление персоналом) as HR
   
-  Office -- (Генерация аналитических отчетов)
-  Office -- (Управление персоналом)
-  
-  Admin -- (Полное управление данными ИС)
-  Admin -- (Настройка ролей доступа)
-  
-  (Запись на стрижку/услугу) .> Auth : <<include>>
-  (Генерация аналитических отчетов) .> Auth : <<include>>
+  (Полное управление ИС) as FullAccess
+  (Настройка ролей) as Roles
 }
+
+' Объявляем Auth ПОСЛЕ прямоугольника
+(Авторизация в системе) as Auth
+
+' Связи акторов
+Client -- View
+Client -- Book
+Client -- Feedback
+Client -- Pay
+
+Master -- Schedule
+Master -- Confirm
+Master -- Inventory
+
+Office -- Reports
+Office -- HR
+
+Admin -- FullAccess
+Admin -- Roles
+
+' Магия позиционирования: используем -[hidden]- 
+' Это заставит Auth встать правее самого правого элемента в блоке
+Reports -[hidden]right-> Auth
+Roles -[hidden]right-> Auth
+
+' Реальные связи
+Book .> Auth : <<include>>
+Reports .> Auth : <<include>>
+
 @enduml

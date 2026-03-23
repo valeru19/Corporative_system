@@ -1,26 +1,57 @@
-@startuml с4_container
+@startuml bradobrei_c4_gost
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
+' Настройки визуализации для "приятного" вида
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundCorner 8
+
+' ГОСТ-стайл: более строгие линии
+skinparam ArrowThickness 1.5
+skinparam ArrowColor #2C3E50
+
+LAYOUT_TOP_DOWN()
 LAYOUT_WITH_LEGEND()
 
-Person(client, "Клиент/Сотрудник", "Пользователь системы")
+title Диаграмма контейнеров ИС "Брадобрей-пати" (Уровень L2)
 
-System_Boundary(bb_system, "ИС Брадобрей-пати") {
-    Container(web_app, "Single-Page Application", "JavaScript, React/Vue", "Предоставляет пользователю интерфейс для бронирования, управления мастерами и просмотра аналитики в браузере")
-    Container(api_app, "API Application", "Java, Spring Boot", "Обеспечивает бизнес-логику: авторизацию, расчет окладов, списание материалов и формирование PDF-отчетов")
-    ContainerDb(database, "Database", "PostgreSQL", "Хранит данные о пользователях, салонах, услугах, графиках и транзакциях")
+' Внешние пользователи
+Person(client, "Клиент", "Пользуется услугами барбершопа, записывается онлайн")
+Person(staff, "Сотрудник", "Мастера, менеджеры, бухгалтеры, администраторы")
+
+System_Boundary(platform, "Информационная система 'Брадобрей-пати'") {
+
+    Container(spa, "Frontend Application (SPA)", "React TypeScript", "Клиентское веб-приложение. Интерфейс взаимодействия с пользователем.")
+
+    Container(api, "Backend API Application", "Java / Python / Go", "Бизнес-логика, авторизация (RBAC), API Gateway, валидация данных.")
+
+    ContainerDb(db, "Центральная БД", "PostgreSQL + PostGIS", "Хранение данных о транзакциях, пользователях и гео-позициях салонов.")
+
+    Container(mq, "Очередь сообщений", "Redis / RabbitMQ", "Асинхронный буфер для тяжелых задач (генерация PDF, рассылки).")
+
+    Container(worker, "Сервис отчетов (Worker)", "Go / Python", "Фоновая генерация аналитики и PDF-документов.")
 }
 
-System_Ext(payment_gate, "Платежный шлюз", "Внешний API для эквайринга")
-System_Ext(map_service, "Гео-сервис", "Картографический сервис (Яндекс/Google)")
-System_Ext(mail_service, "Notification Service", "Отправка e-mail и SMS")
+' Внешние системы
+System_Ext(geo_visual, "Картографический сервис (UI)", "Yandex/Google SDK", "Визуальное отображение карт и тайлов в браузере.")
+System_Ext(geo_logic, "Геокодер (API)", "Yandex/Google API", "Серверная валидация адресов и координат.")
+System_Ext(payment, "Платежный шлюз", "Провайдер оплаты", "Проведение онлайн-платежей.")
+System_Ext(notif, "Сервис уведомлений", "SMS/Email/Push", "Оповещение клиентов о записях.")
 
-Rel(client, web_app, "Использует", "HTTPS")
-Rel(web_app, api_app, "Делает API вызовы к", "JSON/HTTPS")
-Rel(api_app, database, "Читает и записывает данные", "JDBC/SQL")
+' Описания связей (потоки данных)
+Rel(client, spa, "1. Использование интерфейса", "HTTPS/WSS")
+Rel(staff, spa, "1. Управление системой", "HTTPS/WSS")
 
-Rel(api_app, payment_gate, "Инициирует оплату", "HTTPS")
-Rel(api_app, mail_service, "Отправляет запросы на уведомления", "SMTP/HTTPS")
-Rel(web_app, map_service, "Загружает карты и координаты", "HTTPS")
+Rel_D(spa, api, "2. REST API запросы", "JSON/HTTPS")
+Rel_L(spa, geo_visual, "3. Загрузка слоев карт", "JS SDK (Restricted API Key)")
+
+Rel_D(api, db, "4. SQL запросы", "TCP/IP (Internal)")
+Rel_R(api, mq, "5. Постановка задач", "AMQP/Redis Proto")
+Rel_L(api, geo_logic, "6. Верификация адресов", "REST/HTTPS (Secret Key)")
+Rel_D(api, payment, "7. Проведение транзакций", "REST/HTTPS")
+Rel_D(api, notif, "8. Отправка уведомлений", "REST/HTTPS")
+
+Rel_U(worker, mq, "9. Получение задач", "Polling/Subscription")
+Rel_L(worker, db, "10. Чтение данных для отчетов", "SQL")
 
 @enduml

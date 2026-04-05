@@ -28,6 +28,18 @@ const initialForm: CreateBookingRequestDto = {
   notes: '',
 }
 
+/** Значение `datetime-local` (YYYY-MM-DDTHH:mm) → RFC3339 UTC, как ждёт `time.Parse(RFC3339)` на backend. */
+function datetimeLocalToRFC3339(value: string): string {
+  if (!value) {
+    return ''
+  }
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) {
+    return ''
+  }
+  return d.toISOString().replace(/\.\d{3}Z$/, 'Z')
+}
+
 function getDefaultScope(role?: string): BookingScope {
   if (role === 'CLIENT') {
     return 'my'
@@ -193,8 +205,16 @@ export function BookingsPage() {
     }
 
     try {
+      const startRFC3339 = datetimeLocalToRFC3339(form.start_time)
+      if (!startRFC3339) {
+        setError('Укажите корректную дату и время визита.')
+        setSubmitting(false)
+        return
+      }
+
       const payload: CreateBookingRequestDto = {
         ...form,
+        start_time: startRFC3339,
         salon_id: Number(form.salon_id),
         master_id: form.master_id ? Number(form.master_id) : undefined,
         service_ids: form.service_ids.map(Number),
@@ -254,6 +274,7 @@ export function BookingsPage() {
             onChange={(event) => setForm((current) => ({ ...current, start_time: event.target.value }))}
             required
           />
+          <small className="field-hint">Время вашего браузера; на сервер уходит в формате RFC3339 (UTC).</small>
         </label>
         <label className="field">
           <span>Салон</span>

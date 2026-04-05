@@ -186,6 +186,12 @@ export function BookingsPage() {
     setError('')
     setMessage('')
 
+    if (form.service_ids.length === 0) {
+      setError('Выберите хотя бы одну услугу — без этого бронирование не создаётся.')
+      setSubmitting(false)
+      return
+    }
+
     try {
       const payload: CreateBookingRequestDto = {
         ...form,
@@ -288,34 +294,44 @@ export function BookingsPage() {
           <textarea rows={3} value={form.notes} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Например: важна работа с бородой и усами." />
         </label>
         <div className="field field-wide">
-          <span>Услуги</span>
-          <div className="checkbox-grid">
-            {services.map((service) => {
-              const isChecked = form.service_ids.includes(service.id)
-              return (
-                <label key={service.id} className="checkbox-card">
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        service_ids: event.target.checked
-                          ? [...current.service_ids, service.id]
-                          : current.service_ids.filter((serviceId) => serviceId !== service.id),
-                      }))
-                    }
-                  />
-                  <span>
-                    <strong>{service.name}</strong>
-                    <small>{formatCurrency(service.price)} • {service.duration_minutes} мин.</small>
-                  </span>
-                </label>
-              )
-            })}
-          </div>
+          <span>Услуги (обязательно — минимум одна)</span>
+          {services.length === 0 ? (
+            <p className="section-description field-hint">
+              В справочнике нет услуг. Создайте услуги на странице «Услуги», затем обновите эту страницу.
+            </p>
+          ) : (
+            <div className="checkbox-grid">
+              {services.map((service) => {
+                const isChecked = form.service_ids.includes(service.id)
+                return (
+                  <label key={service.id} className="checkbox-card">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          service_ids: event.target.checked
+                            ? [...current.service_ids, service.id]
+                            : current.service_ids.filter((serviceId) => serviceId !== service.id),
+                        }))
+                      }
+                    />
+                    <span>
+                      <strong>{service.name}</strong>
+                      <small>{formatCurrency(service.price)} • {service.duration_minutes} мин.</small>
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          )}
         </div>
-        <button type="submit" className="primary-button field-wide" disabled={submitting}>
+        <button
+          type="submit"
+          className="primary-button field-wide"
+          disabled={submitting || services.length === 0}
+        >
           {submitting ? 'Создаём бронирование...' : 'Создать бронирование'}
         </button>
       </form>

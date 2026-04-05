@@ -5,11 +5,10 @@ import { AuthPage } from '../pages/AuthPage'
 import { BookingsPage } from '../pages/BookingsPage'
 import { EmployeesPage } from '../pages/EmployeesPage'
 import { EmployeeRegistrationPage } from '../pages/EmployeeRegistrationPage'
-import { EmployeesReportPage } from '../pages/EmployeesReportPage'
+import { ErrorPage } from '../pages/ErrorPage'
 import { MaterialsPage } from '../pages/MaterialsPage'
-import { MasterActivityReportPage } from '../pages/MasterActivityReportPage'
 import { PaymentsPage } from '../pages/PaymentsPage'
-import { SalonActivityReportPage } from '../pages/SalonActivityReportPage'
+import { ReportsPage } from '../pages/ReportsPage'
 import { SalonsPage } from '../pages/SalonsPage'
 import { ServicesPage } from '../pages/ServicesPage'
 
@@ -24,23 +23,22 @@ export const appRouter = createBrowserRouter([
       {
         element: <AppShell />,
         children: [
-          { index: true, element: <Navigate to="/salons" replace /> },
+          { index: true, element: <Navigate to="/reports" replace /> },
           { path: '/salons', element: <SalonsPage /> },
           { path: '/bookings', element: <BookingsPage /> },
           { path: '/services', element: <ServicesPage /> },
           { path: '/materials', element: <MaterialsPage /> },
           { path: '/payments', element: <PaymentsPage /> },
           { path: '/employees', element: <EmployeesPage /> },
-          { path: '/reports/employees', element: <EmployeesReportPage /> },
-          { path: '/reports/salon-activity', element: <SalonActivityReportPage /> },
-          { path: '/reports/master-activity', element: <MasterActivityReportPage /> },
+          { path: '/reports', element: <ReportsPage /> },
           { path: '/employees/new', element: <EmployeeRegistrationPage /> },
+          { path: '*', element: <ErrorPage /> },
         ],
       },
     ],
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />,
+    element: <ErrorPage />,
   },
 ])

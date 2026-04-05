@@ -15,6 +15,7 @@ import (
 	"bradobrei/backend/internal/handlers"
 	"bradobrei/backend/internal/middleware"
 	"bradobrei/backend/internal/models"
+	reportspkg "bradobrei/backend/internal/reports"
 	"bradobrei/backend/internal/repository"
 	"bradobrei/backend/internal/services"
 
@@ -73,7 +74,7 @@ func main() {
 	if err := db.AutoMigrate(
 		&models.User{}, &models.EmployeeProfile{}, &models.Salon{},
 		&models.Service{}, &models.Material{}, &models.ServiceMaterial{},
-		&models.Inventory{}, &models.Booking{}, &models.BookingItem{},
+		&models.Inventory{}, &models.MaterialExpense{}, &models.ServiceUsage{}, &models.Booking{}, &models.BookingItem{},
 		&models.Payment{}, &models.Review{},
 	); err != nil {
 		log.Fatal("Ошибка миграции:", err)
@@ -98,18 +99,28 @@ func main() {
 	}
 	salonSvc := services.NewSalonService(salonRepo, geoCoder)
 	reportSvc := services.NewReportService(reportRepo)
-	serviceSvc := services.NewServiceService(serviceRepo, employeeRepo)
+	serviceSvc := services.NewServiceService(serviceRepo, employeeRepo, invRepo, db)
 	materialSvc := services.NewMaterialService(materialRepo)
-	employeeSvc := services.NewEmployeeService(employeeRepo, userRepo)
+	materialExpenseSvc := services.NewMaterialExpenseService(db)
+	inventorySvc := services.NewInventoryService(invRepo)
+	employeeSvc := services.NewEmployeeService(employeeRepo, userRepo, db)
 	paymentSvc := services.NewPaymentService(paymentRepo, bookingRepo)
 
 	authH := handlers.NewAuthHandler(authSvc)
 	bookingH := handlers.NewBookingHandler(bookingSvc)
 	salonH := handlers.NewSalonHandler(salonSvc)
+	reportRenderer, err := reportspkg.NewRenderer(reportspkg.NewGotenbergClientFromEnv())
+	if err != nil {
+		log.Fatal("Ошибка инициализации renderer отчётов:", err)
+	}
+
 	reportH := handlers.NewReportHandler(reportSvc)
+	reportFileH := handlers.NewReportFileHandler(reportSvc, reportRenderer)
 	reviewH := handlers.NewReviewHandler(db)
 	serviceH := handlers.NewServiceHandler(serviceSvc)
 	materialH := handlers.NewMaterialHandler(materialSvc)
+	materialExpenseH := handlers.NewMaterialExpenseHandler(materialExpenseSvc)
+	inventoryH := handlers.NewInventoryHandler(inventorySvc)
 	employeeH := handlers.NewEmployeeHandler(employeeSvc)
 	paymentH := handlers.NewPaymentHandler(paymentSvc)
 
@@ -171,6 +182,9 @@ func main() {
 			svcs.POST("", middleware.RequireRoles(models.RoleAdmin, models.RoleAdvancedMaster), serviceH.Create)
 			svcs.PUT("/:id", middleware.RequireRoles(models.RoleAdmin, models.RoleAdvancedMaster), serviceH.Update)
 			svcs.DELETE("/:id", middleware.RequireRoles(models.RoleAdmin), serviceH.Delete)
+			svcs.POST("/:id/use",
+				middleware.RequireRoles(models.RoleAdmin, models.RoleAdvancedMaster, models.RoleBasicMaster),
+				serviceH.Use)
 			svcs.POST("/:id/assign-master",
 				middleware.RequireRoles(models.RoleAdmin, models.RoleAdvancedMaster, models.RoleBasicMaster),
 				serviceH.AssignToMaster)
@@ -190,6 +204,26 @@ func main() {
 			mats.PUT("/service/:serviceId",
 				middleware.RequireRoles(models.RoleAdmin, models.RoleAdvancedMaster),
 				materialH.SetServiceMaterials)
+		}
+
+		materialExpenses := api.Group("/material-expenses")
+		materialExpenses.Use(middleware.RequireRoles(models.RoleAdmin, models.RoleAccountant))
+		{
+			materialExpenses.GET("", materialExpenseH.GetAll)
+			materialExpenses.GET("/:id", materialExpenseH.GetByID)
+			materialExpenses.POST("", materialExpenseH.Create)
+			materialExpenses.PUT("/:id", materialExpenseH.Update)
+			materialExpenses.DELETE("/:id", materialExpenseH.Delete)
+		}
+
+		inventories := api.Group("/inventories")
+		{
+			inventories.GET("/salon/:salonId",
+				middleware.RequireRoles(models.RoleAdmin, models.RoleAccountant, models.RoleNetworkManager, models.RoleAdvancedMaster),
+				inventoryH.GetBySalon)
+			inventories.PUT("/salon/:salonId/material/:materialId",
+				middleware.RequireRoles(models.RoleAdmin, models.RoleAccountant),
+				inventoryH.SetQuantity)
 		}
 
 		emps := api.Group("/employees")
@@ -238,10 +272,32 @@ func main() {
 		reports.Use(middleware.RequireRoles(models.RoleAdmin, models.RoleAccountant, models.RoleNetworkManager, models.RoleHR))
 		{
 			reports.GET("/employees", reportH.Employees)
+			reports.GET("/employees/html", reportFileH.EmployeesHTML)
+			reports.GET("/employees/pdf", reportFileH.EmployeesPDF)
 			reports.GET("/salon-activity", reportH.SalonActivity)
+			reports.GET("/salon-activity/html", reportFileH.SalonActivityHTML)
+			reports.GET("/salon-activity/pdf", reportFileH.SalonActivityPDF)
 			reports.GET("/service-popularity", reportH.ServicePopularity)
+			reports.GET("/service-popularity/html", reportFileH.ServicePopularityHTML)
+			reports.GET("/service-popularity/pdf", reportFileH.ServicePopularityPDF)
 			reports.GET("/master-activity", reportH.MasterActivity)
+			reports.GET("/master-activity/html", reportFileH.MasterActivityHTML)
+			reports.GET("/master-activity/pdf", reportFileH.MasterActivityPDF)
 			reports.GET("/reviews", reportH.Reviews)
+			reports.GET("/reviews/html", reportFileH.ReviewsHTML)
+			reports.GET("/reviews/pdf", reportFileH.ReviewsPDF)
+			reports.GET("/inventory-movement", reportH.InventoryMovement)
+			reports.GET("/inventory-movement/html", reportFileH.InventoryMovementHTML)
+			reports.GET("/inventory-movement/pdf", reportFileH.InventoryMovementPDF)
+			reports.GET("/client-loyalty", reportH.ClientLoyalty)
+			reports.GET("/client-loyalty/html", reportFileH.ClientLoyaltyHTML)
+			reports.GET("/client-loyalty/pdf", reportFileH.ClientLoyaltyPDF)
+			reports.GET("/cancelled-bookings", reportH.CancelledBookings)
+			reports.GET("/cancelled-bookings/html", reportFileH.CancelledBookingsHTML)
+			reports.GET("/cancelled-bookings/pdf", reportFileH.CancelledBookingsPDF)
+			reports.GET("/financial-summary", reportH.FinancialSummary)
+			reports.GET("/financial-summary/html", reportFileH.FinancialSummaryHTML)
+			reports.GET("/financial-summary/pdf", reportFileH.FinancialSummaryPDF)
 		}
 	}
 

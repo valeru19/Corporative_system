@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { apiConfig } from '../api/config'
 import { authService } from '../api/services/authService'
 import { tokenStorage } from '../api/services/tokenStorage'
-import { apiConfig } from '../api/config'
-import type { UserDto } from '../types/dto/auth'
 import { formatRole } from '../shared/formatters'
+import type { UserDto } from '../types/dto/auth'
 
 const navigation = [
   { to: '/salons', label: 'Салоны' },
@@ -13,9 +13,7 @@ const navigation = [
   { to: '/materials', label: 'Материалы' },
   { to: '/payments', label: 'Платежи' },
   { to: '/employees', label: 'Сотрудники' },
-  { to: '/reports/employees', label: 'Отчёт 2.2.1' },
-  { to: '/reports/salon-activity', label: 'Отчёт 2.2.2' },
-  { to: '/reports/master-activity', label: 'Отчёт 2.2.4' },
+  { to: '/reports', label: 'Отчёты' },
   { to: '/employees/new', label: 'Новый сотрудник' },
 ]
 
@@ -54,8 +52,7 @@ export function AppShell() {
           <p className="eyebrow">Bradobrei Party</p>
           <h1>Панель операций и отчётов</h1>
           <p className="lede">
-            Один контур для авторизации, справочников, бронирований, платежей, кадровых операций и отчётов,
-            уже подключённых к текущему backend API.
+            Один контур для авторизации, справочников, бронирований, платежей, кадровых операций и аналитики, уже подключённой к текущему backend API.
           </p>
         </div>
 
@@ -64,9 +61,7 @@ export function AppShell() {
             <NavLink
               key={item.to}
               to={item.to}
-              className={({ isActive }) =>
-                isActive ? 'nav-link nav-link-active' : 'nav-link'
-              }
+              className={({ isActive }) => (isActive ? 'nav-link nav-link-active' : 'nav-link')}
             >
               {item.label}
             </NavLink>

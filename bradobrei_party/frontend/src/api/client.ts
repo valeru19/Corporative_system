@@ -37,6 +37,10 @@ function buildUrl(path: string, query?: QueryParams) {
   return url.toString()
 }
 
+export function buildApiUrl(path: string, query?: QueryParams) {
+  return buildUrl(path, query)
+}
+
 async function parseResponse(response: Response) {
   const contentType = response.headers.get('content-type') || ''
   if (contentType.includes('application/json')) {
@@ -81,4 +85,47 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   }
 
   return payload as T
+}
+
+export async function apiBlobRequest(path: string, options: RequestOptions = {}): Promise<Blob> {
+  const { auth = true, body, headers, query, ...rest } = options
+  const token = tokenStorage.get()
+  const requestHeaders = new Headers(headers)
+
+  if (body !== undefined) {
+    requestHeaders.set('Content-Type', 'application/json')
+  }
+
+  if (auth && token) {
+    requestHeaders.set('Authorization', `Bearer ${token}`)
+  }
+
+  const response = await fetch(buildUrl(path, query), {
+    ...rest,
+    headers: requestHeaders,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+
+  if (!response.ok) {
+    let payload: unknown
+    const contentType = response.headers.get('content-type') || ''
+    if (contentType.includes('application/json')) {
+      payload = await response.json()
+    } else {
+      payload = await response.text()
+    }
+
+    if (response.status === 401) {
+      tokenStorage.clear()
+    }
+
+    const errorPayload = typeof payload === 'object' && payload !== null ? (payload as ErrorResponseDto) : undefined
+    const message =
+      errorPayload?.message ||
+      errorPayload?.error ||
+      (typeof payload === 'string' ? payload : response.statusText)
+    throw new ApiError(response.status, message, errorPayload)
+  }
+
+  return response.blob()
 }

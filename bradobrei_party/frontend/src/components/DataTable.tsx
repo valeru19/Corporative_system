@@ -9,7 +9,7 @@ export interface TableColumn<T> {
 interface DataTableProps<T> {
   caption: string
   columns: Array<TableColumn<T>>
-  rows: T[]
+  rows?: T[] | null
   emptyText?: string
 }
 
@@ -19,6 +19,8 @@ export function DataTable<T>({
   rows,
   emptyText = 'Данные пока отсутствуют.',
 }: DataTableProps<T>) {
+  const safeRows = Array.isArray(rows) ? rows : []
+
   return (
     <div className="table-card">
       <div className="table-scroll">
@@ -32,8 +34,8 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {rows.length > 0 ? (
-              rows.map((row, index) => (
+            {safeRows.length > 0 ? (
+              safeRows.map((row, index) => (
                 <tr key={index}>
                   {columns.map((column) => (
                     <td key={column.key}>{column.render(row)}</td>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable, type TableColumn } from '../components/DataTable'
 import { employeeService } from '../api/services/employeeService'
 import type { EmployeeManagementDto, UpdateEmployeeRequestDto } from '../types/dto/employee'
@@ -77,6 +78,7 @@ function parseSalonIds(value: string) {
 }
 
 export function EmployeesPage() {
+  const { confirm, dialog } = useConfirmDialog()
   const [employees, setEmployees] = useState<EmployeeManagementDto[]>([])
   const [editingEmployee, setEditingEmployee] = useState<EmployeeManagementDto | null>(null)
   const [form, setForm] = useState(initialForm)
@@ -98,7 +100,7 @@ export function EmployeesPage() {
   }
 
   useEffect(() => {
-    loadEmployees()
+    void loadEmployees()
   }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -130,7 +132,13 @@ export function EmployeesPage() {
   }
 
   async function handleFire(employee: EmployeeManagementDto) {
-    if (!window.confirm(`Уволить сотрудника "${employee.user?.full_name || employee.id}"?`)) {
+    const shouldContinue = await confirm({
+      title: 'Увольнение сотрудника',
+      message: `Уволить сотрудника "${employee.user?.full_name || employee.id}"?`,
+      confirmLabel: 'Уволить',
+      variant: 'danger',
+    })
+    if (!shouldContinue) {
       return
     }
 
@@ -171,11 +179,12 @@ export function EmployeesPage() {
 
   return (
     <section className="page-section">
+      {dialog}
       <div className="page-header">
         <p className="eyebrow">Кадровый контур</p>
         <h2>Управление сотрудниками</h2>
         <p className="section-description">
-          Экран для редактирования профилей сотрудников и увольнения. Найм остаётся на отдельной странице, а здесь собраны операции сопровождения.
+          Редактирование профилей, ролей, графика и закрепления за салонами; увольнение. Найм остаётся на отдельной странице.
         </p>
       </div>
 

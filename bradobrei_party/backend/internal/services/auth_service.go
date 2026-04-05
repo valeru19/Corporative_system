@@ -34,7 +34,7 @@ func (s *AuthService) Register(req dto.RegisterRequest) (*models.User, error) {
 		return nil, err
 	}
 
-// Email — указатель: пустая строка NULL, не нарушает unique constraint	
+	// Email — указатель: пустая строка → NULL, не нарушает unique constraint
 	var emailPtr *string
 	if req.Email != "" {
 		emailPtr = &req.Email
@@ -91,7 +91,7 @@ func (s *AuthService) generateToken(user *models.User) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		}, 
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -33,6 +33,7 @@ export interface ServiceDto {
   created_at: string
   updated_at: string
   materials?: ServiceMaterialDto[]
+  employees?: EmployeeProfileSummaryDto[]
 }
 
 export interface EmployeeProfileSummaryDto {

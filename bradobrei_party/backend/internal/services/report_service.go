@@ -39,3 +39,19 @@ func (s *ReportService) GetMasterActivity(from, to time.Time) ([]repository.Mast
 func (s *ReportService) GetReviews(from, to time.Time) ([]models.Review, error) {
 	return s.reportRepo.GetReviews(from, to)
 }
+
+func (s *ReportService) GetInventoryMovement(from, to time.Time, salonID uint) ([]repository.InventoryMovementRow, error) {
+	return s.reportRepo.GetInventoryMovement(from, to, salonID)
+}
+
+func (s *ReportService) GetClientLoyalty(from, to time.Time) ([]repository.ClientLoyaltyRow, error) {
+	return s.reportRepo.GetClientLoyalty(from, to)
+}
+
+func (s *ReportService) GetCancelledBookings(from, to time.Time) ([]repository.CancelledBookingRow, error) {
+	return s.reportRepo.GetCancelledBookings(from, to)
+}
+
+func (s *ReportService) GetFinancialSummary(from, to time.Time, salonID uint) ([]repository.FinancialSummaryRow, error) {
+	return s.reportRepo.GetFinancialSummary(from, to, salonID)
+}

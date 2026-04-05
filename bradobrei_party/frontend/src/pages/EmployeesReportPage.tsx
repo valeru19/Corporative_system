@@ -16,7 +16,7 @@ export function EmployeesReportPage() {
       .getEmployees()
       .then((response) => {
         if (!cancelled) {
-          setRows(response.data)
+          setRows(response.data ?? [])
         }
       })
       .catch((requestError: Error) => {

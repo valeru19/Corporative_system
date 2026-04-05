@@ -29,7 +29,7 @@ export function SalonActivityReportPage() {
 
     try {
       const response = await reportService.getSalonActivity(filters)
-      setRows(response.data)
+      setRows(response.data ?? [])
       if (response.period) {
         setPeriodLabel(`${response.period.from} — ${response.period.to}`)
       }

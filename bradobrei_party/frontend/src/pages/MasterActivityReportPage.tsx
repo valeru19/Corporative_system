@@ -29,7 +29,7 @@ export function MasterActivityReportPage() {
 
     try {
       const response = await reportService.getMasterActivity(filters)
-      setRows(response.data)
+      setRows(response.data ?? [])
       if (response.period) {
         setPeriodLabel(`${response.period.from} — ${response.period.to}`)
       }

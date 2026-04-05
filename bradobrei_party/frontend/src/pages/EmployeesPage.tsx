@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable, type TableColumn } from '../components/DataTable'
 import { employeeService } from '../api/services/employeeService'
 import type { EmployeeManagementDto, UpdateEmployeeRequestDto } from '../types/dto/employee'
@@ -77,6 +78,7 @@ function parseSalonIds(value: string) {
 }
 
 export function EmployeesPage() {
+  const { confirm, dialog } = useConfirmDialog()
   const [employees, setEmployees] = useState<EmployeeManagementDto[]>([])
   const [editingEmployee, setEditingEmployee] = useState<EmployeeManagementDto | null>(null)
   const [form, setForm] = useState(initialForm)
@@ -98,7 +100,7 @@ export function EmployeesPage() {
   }
 
   useEffect(() => {
-    loadEmployees()
+    void loadEmployees()
   }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -130,7 +132,13 @@ export function EmployeesPage() {
   }
 
   async function handleFire(employee: EmployeeManagementDto) {
-    if (!window.confirm(`Уволить сотрудника "${employee.user?.full_name || employee.id}"?`)) {
+    const shouldContinue = await confirm({
+      title: 'Увольнение сотрудника',
+      message: `Уволить сотрудника "${employee.user?.full_name || employee.id}"?`,
+      confirmLabel: 'Уволить',
+      variant: 'danger',
+    })
+    if (!shouldContinue) {
       return
     }
 
@@ -171,11 +179,12 @@ export function EmployeesPage() {
 
   return (
     <section className="page-section">
+      {dialog}
       <div className="page-header">
         <p className="eyebrow">Кадровый контур</p>
         <h2>Управление сотрудниками</h2>
         <p className="section-description">
-          Экран для редактирования профилей сотрудников и увольнения. Найм остаётся на отдельной странице, а здесь собраны операции сопровождения.
+          Здесь собраны операции сопровождения сотрудников: редактирование профилей, ролей, графика и закрепления за салонами.
         </p>
       </div>
 
@@ -186,11 +195,7 @@ export function EmployeesPage() {
         <form className="card-form card-form-grid" onSubmit={handleSubmit}>
           <label className="field">
             <span>Логин</span>
-            <input
-              value={form.username}
-              onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
-              required
-            />
+            <input value={form.username} onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))} required />
           </label>
           <label className="field">
             <span>Роль</span>
@@ -209,74 +214,37 @@ export function EmployeesPage() {
           </label>
           <label className="field field-wide">
             <span>ФИО</span>
-            <input
-              value={form.full_name}
-              onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))}
-              required
-            />
+            <input value={form.full_name} onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))} required />
           </label>
           <label className="field">
             <span>Телефон</span>
-            <input
-              value={form.phone}
-              onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-            />
+            <input value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} />
           </label>
           <label className="field">
             <span>Email</span>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-            />
+            <input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} />
           </label>
           <label className="field">
             <span>Оклад</span>
-            <input
-              type="number"
-              min="0"
-              value={form.expected_salary}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, expected_salary: Number(event.target.value) }))
-              }
-            />
+            <input type="number" min="0" value={form.expected_salary} onChange={(event) => setForm((current) => ({ ...current, expected_salary: Number(event.target.value) }))} />
           </label>
           <label className="field">
             <span>ID салонов через запятую</span>
-            <input
-              value={salonIdsInput}
-              onChange={(event) => setSalonIdsInput(event.target.value)}
-              placeholder="1, 2"
-            />
+            <input value={salonIdsInput} onChange={(event) => setSalonIdsInput(event.target.value)} placeholder="1, 2" />
           </label>
           <label className="field field-wide">
             <span>Специализация</span>
-            <input
-              value={form.specialization}
-              onChange={(event) => setForm((current) => ({ ...current, specialization: event.target.value }))}
-            />
+            <input value={form.specialization} onChange={(event) => setForm((current) => ({ ...current, specialization: event.target.value }))} />
           </label>
           <label className="field field-wide">
             <span>График JSON</span>
-            <textarea
-              rows={4}
-              value={form.work_schedule}
-              onChange={(event) => setForm((current) => ({ ...current, work_schedule: event.target.value }))}
-            />
+            <textarea rows={4} value={form.work_schedule} onChange={(event) => setForm((current) => ({ ...current, work_schedule: event.target.value }))} />
           </label>
           <div className="button-row field-wide">
             <button type="submit" className="primary-button" disabled={submitting}>
               {submitting ? 'Сохраняем...' : 'Сохранить изменения'}
             </button>
-            <button
-              type="button"
-              className="ghost-button"
-              onClick={() => {
-                setEditingEmployee(null)
-                setForm(initialForm)
-                setSalonIdsInput('')
-              }}
-            >
+            <button type="button" className="ghost-button" onClick={() => { setEditingEmployee(null); setForm(initialForm); setSalonIdsInput('') }}>
               Отменить
             </button>
           </div>

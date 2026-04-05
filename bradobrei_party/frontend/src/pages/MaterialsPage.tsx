@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable, type TableColumn } from '../components/DataTable'
 import { materialService } from '../api/services/materialService'
 import type { MaterialDto, UpsertMaterialRequestDto } from '../types/dto/entities'
@@ -32,6 +33,7 @@ const materialColumns = (
 ]
 
 export function MaterialsPage() {
+  const { confirm, dialog } = useConfirmDialog()
   const [form, setForm] = useState(initialForm)
   const [materials, setMaterials] = useState<MaterialDto[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -52,7 +54,7 @@ export function MaterialsPage() {
   }
 
   useEffect(() => {
-    loadMaterials()
+    void loadMaterials()
   }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -81,7 +83,13 @@ export function MaterialsPage() {
   }
 
   async function handleDelete(material: MaterialDto) {
-    if (!window.confirm(`Удалить материал "${material.name}"?`)) {
+    const shouldContinue = await confirm({
+      title: 'Удаление материала',
+      message: `Удалить материал "${material.name}"?`,
+      confirmLabel: 'Удалить',
+      variant: 'danger',
+    })
+    if (!shouldContinue) {
       return
     }
 
@@ -96,11 +104,12 @@ export function MaterialsPage() {
 
   return (
     <section className="page-section">
+      {dialog}
       <div className="page-header">
         <p className="eyebrow">Склад и расход</p>
         <h2>Материалы</h2>
         <p className="section-description">
-          Справочник материалов нужен для пополнения каталога расходников и последующей привязки норм расхода к услугам.
+          Справочник материалов нужен для каталога расходников и последующей привязки норм расхода к услугам.
         </p>
       </div>
 
@@ -127,14 +136,7 @@ export function MaterialsPage() {
             {submitting ? 'Сохраняем...' : editingId ? 'Обновить материал' : 'Создать материал'}
           </button>
           {editingId ? (
-            <button
-              type="button"
-              className="ghost-button"
-              onClick={() => {
-                setEditingId(null)
-                setForm(initialForm)
-              }}
-            >
+            <button type="button" className="ghost-button" onClick={() => { setEditingId(null); setForm(initialForm) }}>
               Сбросить редактирование
             </button>
           ) : null}

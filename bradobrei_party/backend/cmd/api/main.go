@@ -14,6 +14,7 @@ import (
 	"bradobrei/backend/internal/handlers"
 	"bradobrei/backend/internal/middleware"
 	"bradobrei/backend/internal/models"
+	reportspkg "bradobrei/backend/internal/reports"
 	"bradobrei/backend/internal/repository"
 	"bradobrei/backend/internal/services"
 
@@ -103,7 +104,13 @@ func main() {
 	authH := handlers.NewAuthHandler(authSvc)
 	bookingH := handlers.NewBookingHandler(bookingSvc)
 	salonH := handlers.NewSalonHandler(salonSvc)
+	reportRenderer, err := reportspkg.NewRenderer(reportspkg.NewGotenbergClientFromEnv())
+	if err != nil {
+		log.Fatal("Ошибка инициализации renderer отчётов:", err)
+	}
+
 	reportH := handlers.NewReportHandler(reportSvc)
+	reportFileH := handlers.NewReportFileHandler(reportSvc, reportRenderer)
 	reviewH := handlers.NewReviewHandler(db)
 	serviceH := handlers.NewServiceHandler(serviceSvc)
 	materialH := handlers.NewMaterialHandler(materialSvc)
@@ -259,14 +266,32 @@ func main() {
 		reports.Use(middleware.RequireRoles(models.RoleAdmin, models.RoleAccountant, models.RoleNetworkManager, models.RoleHR))
 		{
 			reports.GET("/employees", reportH.Employees)
+			reports.GET("/employees/html", reportFileH.EmployeesHTML)
+			reports.GET("/employees/pdf", reportFileH.EmployeesPDF)
 			reports.GET("/salon-activity", reportH.SalonActivity)
+			reports.GET("/salon-activity/html", reportFileH.SalonActivityHTML)
+			reports.GET("/salon-activity/pdf", reportFileH.SalonActivityPDF)
 			reports.GET("/service-popularity", reportH.ServicePopularity)
+			reports.GET("/service-popularity/html", reportFileH.ServicePopularityHTML)
+			reports.GET("/service-popularity/pdf", reportFileH.ServicePopularityPDF)
 			reports.GET("/master-activity", reportH.MasterActivity)
+			reports.GET("/master-activity/html", reportFileH.MasterActivityHTML)
+			reports.GET("/master-activity/pdf", reportFileH.MasterActivityPDF)
 			reports.GET("/reviews", reportH.Reviews)
+			reports.GET("/reviews/html", reportFileH.ReviewsHTML)
+			reports.GET("/reviews/pdf", reportFileH.ReviewsPDF)
 			reports.GET("/inventory-movement", reportH.InventoryMovement)
+			reports.GET("/inventory-movement/html", reportFileH.InventoryMovementHTML)
+			reports.GET("/inventory-movement/pdf", reportFileH.InventoryMovementPDF)
 			reports.GET("/client-loyalty", reportH.ClientLoyalty)
+			reports.GET("/client-loyalty/html", reportFileH.ClientLoyaltyHTML)
+			reports.GET("/client-loyalty/pdf", reportFileH.ClientLoyaltyPDF)
 			reports.GET("/cancelled-bookings", reportH.CancelledBookings)
+			reports.GET("/cancelled-bookings/html", reportFileH.CancelledBookingsHTML)
+			reports.GET("/cancelled-bookings/pdf", reportFileH.CancelledBookingsPDF)
 			reports.GET("/financial-summary", reportH.FinancialSummary)
+			reports.GET("/financial-summary/html", reportFileH.FinancialSummaryHTML)
+			reports.GET("/financial-summary/pdf", reportFileH.FinancialSummaryPDF)
 		}
 	}
 

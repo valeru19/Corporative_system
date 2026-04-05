@@ -328,3 +328,80 @@ type ReviewsReportRow struct {
 	Text      string    `json:"text"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// ServicePopularityReportDocument — представление отчёта 2.2.3 для HTML/PDF.
+type ServicePopularityReportDocument struct {
+	Meta ReportMeta                   `json:"meta"`
+	Rows []ServicePopularityReportRow `json:"rows"`
+}
+
+type ServicePopularityReportRow struct {
+	ServiceID    uint    `json:"service_id"`
+	ServiceName  string  `json:"service_name"`
+	UsageCount   int64   `json:"usage_count"`
+	RelativeFreq float64 `json:"relative_freq"`
+}
+
+// InventoryMovementReportDocument — представление отчёта 2.2.6 для HTML/PDF.
+type InventoryMovementReportDocument struct {
+	Meta ReportMeta                   `json:"meta"`
+	Rows []InventoryMovementReportRow `json:"rows"`
+}
+
+type InventoryMovementReportRow struct {
+	SalonAddress   string  `json:"salon_address"`
+	MaterialName   string  `json:"material_name"`
+	Unit           string  `json:"unit"`
+	OpeningBalance float64 `json:"opening_balance"`
+	Purchased      float64 `json:"purchased"`
+	WrittenOff     float64 `json:"written_off"`
+	CurrentBalance float64 `json:"current_balance"`
+}
+
+// ClientLoyaltyReportDocument — представление отчёта 2.2.7 для HTML/PDF.
+type ClientLoyaltyReportDocument struct {
+	Meta ReportMeta               `json:"meta"`
+	Rows []ClientLoyaltyReportRow `json:"rows"`
+}
+
+type ClientLoyaltyReportRow struct {
+	ClientID    uint       `json:"client_id"`
+	FullName    string     `json:"full_name"`
+	Phone       string     `json:"phone"`
+	Email       string     `json:"email,omitempty"`
+	FirstVisit  *time.Time `json:"first_visit,omitempty"`
+	LastVisit   *time.Time `json:"last_visit,omitempty"`
+	VisitCount  int64      `json:"visit_count"`
+	PaidTotal   float64    `json:"paid_total"`
+	BonusStatus string     `json:"bonus_status"`
+}
+
+// CancelledBookingsReportDocument — представление отчёта 2.2.8 для HTML/PDF.
+type CancelledBookingsReportDocument struct {
+	Meta ReportMeta                   `json:"meta"`
+	Rows []CancelledBookingsReportRow `json:"rows"`
+}
+
+type CancelledBookingsReportRow struct {
+	BookingID           uint      `json:"booking_id"`
+	PlannedVisit        time.Time `json:"planned_visit"`
+	ClientFullName      string    `json:"client_full_name"`
+	MasterFullName      string    `json:"master_full_name"`
+	CancellationReason  string    `json:"cancellation_reason"`
+	CancellationRatePct float64   `json:"cancellation_rate_pct"`
+	Status              string    `json:"status"`
+}
+
+// FinancialSummaryReportDocument — представление отчёта 2.2.9 для HTML/PDF.
+type FinancialSummaryReportDocument struct {
+	Meta ReportMeta                  `json:"meta"`
+	Rows []FinancialSummaryReportRow `json:"rows"`
+}
+
+type FinancialSummaryReportRow struct {
+	SalonAddress    string    `json:"salon_address"`
+	ExpenseItem     string    `json:"expense_item"`
+	Amount          float64   `json:"amount"`
+	TransactionDate time.Time `json:"transaction_date"`
+	TotalBalance    float64   `json:"total_balance"`
+}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable, type TableColumn } from '../components/DataTable'
 import { salonService } from '../api/services/salonService'
 import type { EmployeeProfileSummaryDto, SalonDto, UpsertSalonRequestDto } from '../types/dto/entities'
@@ -57,6 +58,7 @@ const masterColumns: Array<TableColumn<EmployeeProfileSummaryDto>> = [
 ]
 
 export function SalonsPage() {
+  const { confirm, dialog } = useConfirmDialog()
   const [form, setForm] = useState(initialForm)
   const [salons, setSalons] = useState<SalonDto[]>([])
   const [masters, setMasters] = useState<EmployeeProfileSummaryDto[]>([])
@@ -79,10 +81,10 @@ export function SalonsPage() {
   }
 
   useEffect(() => {
-    loadSalons()
+    void loadSalons()
   }, [])
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitting(true)
     setError('')
@@ -114,7 +116,13 @@ export function SalonsPage() {
   }
 
   async function handleDelete(salon: SalonDto) {
-    if (!window.confirm(`Удалить салон "${salon.name}"?`)) {
+    const shouldContinue = await confirm({
+      title: 'Удаление салона',
+      message: `Удалить салон "${salon.name}"?`,
+      confirmLabel: 'Удалить',
+      variant: 'danger',
+    })
+    if (!shouldContinue) {
       return
     }
 
@@ -146,6 +154,7 @@ export function SalonsPage() {
 
   return (
     <section className="page-section">
+      {dialog}
       <div className="page-header">
         <p className="eyebrow">Операционный контур</p>
         <h2>Салоны</h2>
@@ -197,14 +206,7 @@ export function SalonsPage() {
             {submitting ? 'Сохраняем...' : editingId ? 'Обновить салон' : 'Создать салон'}
           </button>
           {editingId ? (
-            <button
-              type="button"
-              className="ghost-button"
-              onClick={() => {
-                setEditingId(null)
-                setForm(initialForm)
-              }}
-            >
+            <button type="button" className="ghost-button" onClick={() => { setEditingId(null); setForm(initialForm) }}>
               Сбросить редактирование
             </button>
           ) : null}

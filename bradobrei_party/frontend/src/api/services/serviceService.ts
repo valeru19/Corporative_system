@@ -1,5 +1,5 @@
 import { apiRequest } from '../client'
-import type { ServiceDto, UpsertServiceRequestDto } from '../../types/dto/entities'
+import type { ServiceDto, ServiceMaterialDto, UpsertServiceRequestDto } from '../../types/dto/entities'
 
 export const serviceService = {
   getAll() {
@@ -22,6 +22,23 @@ export const serviceService = {
   },
   remove(id: number) {
     return apiRequest<{ message: string }>(`/services/${id}`, {
+      method: 'DELETE',
+    })
+  },
+  setMaterials(id: number, payload: Array<Pick<ServiceMaterialDto, 'material_id' | 'quantity_per_use'>>) {
+    return apiRequest<{ message: string }>(`/materials/service/${id}`, {
+      method: 'PUT',
+      body: payload,
+    })
+  },
+  assignMaster(id: number, targetUserId: number) {
+    return apiRequest<{ message: string }>(`/services/${id}/assign-master`, {
+      method: 'POST',
+      body: { target_user_id: targetUserId },
+    })
+  },
+  removeMaster(id: number, profileId: number) {
+    return apiRequest<{ message: string }>(`/services/${id}/assign-master/${profileId}`, {
       method: 'DELETE',
     })
   },

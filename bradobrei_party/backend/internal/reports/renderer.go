@@ -40,12 +40,32 @@ func (r *Renderer) RenderSalonActivityHTML(doc models.SalonActivityReportDocumen
 	return r.render("salon_activity.html", doc)
 }
 
+func (r *Renderer) RenderServicePopularityHTML(doc models.ServicePopularityReportDocument) ([]byte, error) {
+	return r.render("service_popularity.html", doc)
+}
+
 func (r *Renderer) RenderMasterActivityHTML(doc models.MasterActivityReportDocument) ([]byte, error) {
 	return r.render("master_activity.html", doc)
 }
 
 func (r *Renderer) RenderReviewsHTML(doc models.ReviewsReportDocument) ([]byte, error) {
 	return r.render("reviews.html", doc)
+}
+
+func (r *Renderer) RenderInventoryMovementHTML(doc models.InventoryMovementReportDocument) ([]byte, error) {
+	return r.render("inventory_movement.html", doc)
+}
+
+func (r *Renderer) RenderClientLoyaltyHTML(doc models.ClientLoyaltyReportDocument) ([]byte, error) {
+	return r.render("client_loyalty.html", doc)
+}
+
+func (r *Renderer) RenderCancelledBookingsHTML(doc models.CancelledBookingsReportDocument) ([]byte, error) {
+	return r.render("cancelled_bookings.html", doc)
+}
+
+func (r *Renderer) RenderFinancialSummaryHTML(doc models.FinancialSummaryReportDocument) ([]byte, error) {
+	return r.render("financial_summary.html", doc)
 }
 
 func (r *Renderer) RenderEmployeesPDF(ctx context.Context, doc models.EmployeeRegistryReportDocument) ([]byte, error) {
@@ -64,6 +84,14 @@ func (r *Renderer) RenderSalonActivityPDF(ctx context.Context, doc models.SalonA
 	return r.convertHTML(ctx, "salon-activity-report", htmlBytes)
 }
 
+func (r *Renderer) RenderServicePopularityPDF(ctx context.Context, doc models.ServicePopularityReportDocument) ([]byte, error) {
+	htmlBytes, err := r.RenderServicePopularityHTML(doc)
+	if err != nil {
+		return nil, err
+	}
+	return r.convertHTML(ctx, "service-popularity-report", htmlBytes)
+}
+
 func (r *Renderer) RenderMasterActivityPDF(ctx context.Context, doc models.MasterActivityReportDocument) ([]byte, error) {
 	htmlBytes, err := r.RenderMasterActivityHTML(doc)
 	if err != nil {
@@ -80,13 +108,47 @@ func (r *Renderer) RenderReviewsPDF(ctx context.Context, doc models.ReviewsRepor
 	return r.convertHTML(ctx, "reviews-report", htmlBytes)
 }
 
+func (r *Renderer) RenderInventoryMovementPDF(ctx context.Context, doc models.InventoryMovementReportDocument) ([]byte, error) {
+	htmlBytes, err := r.RenderInventoryMovementHTML(doc)
+	if err != nil {
+		return nil, err
+	}
+	return r.convertHTML(ctx, "inventory-movement-report", htmlBytes)
+}
+
+func (r *Renderer) RenderClientLoyaltyPDF(ctx context.Context, doc models.ClientLoyaltyReportDocument) ([]byte, error) {
+	htmlBytes, err := r.RenderClientLoyaltyHTML(doc)
+	if err != nil {
+		return nil, err
+	}
+	return r.convertHTML(ctx, "client-loyalty-report", htmlBytes)
+}
+
+func (r *Renderer) RenderCancelledBookingsPDF(ctx context.Context, doc models.CancelledBookingsReportDocument) ([]byte, error) {
+	htmlBytes, err := r.RenderCancelledBookingsHTML(doc)
+	if err != nil {
+		return nil, err
+	}
+	return r.convertHTML(ctx, "cancelled-bookings-report", htmlBytes)
+}
+
+func (r *Renderer) RenderFinancialSummaryPDF(ctx context.Context, doc models.FinancialSummaryReportDocument) ([]byte, error) {
+	htmlBytes, err := r.RenderFinancialSummaryHTML(doc)
+	if err != nil {
+		return nil, err
+	}
+	return r.convertHTML(ctx, "financial-summary-report", htmlBytes)
+}
+
 func (r *Renderer) render(templateName string, data any) ([]byte, error) {
 	tpl, err := template.New("base.html").Funcs(template.FuncMap{
-		"formatDate":     formatDate,
-		"formatDateTime": formatDateTime,
-		"formatMoney":    formatMoney,
-		"join":           strings.Join,
-		"safePeriod":     safePeriod,
+		"formatDate":          formatDate,
+		"formatDateTime":      formatDateTime,
+		"formatMaybeDateTime": formatMaybeDateTime,
+		"formatMoney":         formatMoney,
+		"join":                strings.Join,
+		"mul100":              mul100,
+		"safePeriod":          safePeriod,
 	}).ParseFS(templatesFS, "templates/base.html", "templates/"+templateName)
 	if err != nil {
 		return nil, err
@@ -139,8 +201,19 @@ func formatDateTime(t time.Time) string {
 	return t.Format("02.01.2006 15:04")
 }
 
+func formatMaybeDateTime(t *time.Time) string {
+	if t == nil || t.IsZero() {
+		return "-"
+	}
+	return t.Format("02.01.2006 15:04")
+}
+
 func formatMoney(value float64) string {
 	return fmt.Sprintf("%.2f руб.", value)
+}
+
+func mul100(value float64) float64 {
+	return value * 100
 }
 
 func safePeriod(from, to *time.Time) string {

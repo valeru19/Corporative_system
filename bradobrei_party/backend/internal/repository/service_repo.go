@@ -16,13 +16,13 @@ func NewServiceRepository(db *gorm.DB) *ServiceRepository {
 
 func (r *ServiceRepository) GetAll() ([]models.Service, error) {
 	var services []models.Service
-	err := r.db.Preload("Materials.Material").Find(&services).Error
+	err := r.db.Preload("Materials.Material").Preload("Employees.User").Find(&services).Error
 	return services, err
 }
 
 func (r *ServiceRepository) GetByID(id uint) (*models.Service, error) {
 	var s models.Service
-	err := r.db.Preload("Materials.Material").First(&s, id).Error
+	err := r.db.Preload("Materials.Material").Preload("Employees.User").First(&s, id).Error
 	if err != nil {
 		return nil, err
 	}

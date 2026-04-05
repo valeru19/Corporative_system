@@ -1109,6 +1109,76 @@ paths:
       summary: Отчёт 2.2.8 Отменённые и нереализованные бронирования
       tags:
       - reports
+  /reports/cancelled-bookings/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.8 Отменённые бронирования
+      tags:
+      - reports
+  /reports/cancelled-bookings/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.8 Отменённые бронирования
+      tags:
+      - reports
   /reports/client-loyalty:
     get:
       parameters:
@@ -1141,6 +1211,76 @@ paths:
       summary: Отчёт 2.2.7 Анализ клиентской лояльности
       tags:
       - reports
+  /reports/client-loyalty/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.7 Клиентская лояльность
+      tags:
+      - reports
+  /reports/client-loyalty/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.7 Клиентская лояльность
+      tags:
+      - reports
   /reports/employees:
     get:
       produces:
@@ -1158,6 +1298,50 @@ paths:
       security:
       - BearerAuth: []
       summary: Отчёт 2.2.1 Реестр персонала
+      tags:
+      - reports
+  /reports/employees/html:
+    get:
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.1 Реестр персонала
+      tags:
+      - reports
+  /reports/employees/pdf:
+    get:
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.1 Реестр персонала
       tags:
       - reports
   /reports/financial-summary:
@@ -1196,6 +1380,84 @@ paths:
       summary: Отчёт 2.2.9 Финансовый отчёт по транзакциям
       tags:
       - reports
+  /reports/financial-summary/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      - description: ID салона
+        in: query
+        name: salon_id
+        type: integer
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.9 Финансовая сводка
+      tags:
+      - reports
+  /reports/financial-summary/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      - description: ID салона
+        in: query
+        name: salon_id
+        type: integer
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.9 Финансовая сводка
+      tags:
+      - reports
   /reports/inventory-movement:
     get:
       parameters:
@@ -1232,6 +1494,84 @@ paths:
       summary: Отчёт 2.2.6 Ведомость движения ТМЦ
       tags:
       - reports
+  /reports/inventory-movement/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      - description: ID салона
+        in: query
+        name: salon_id
+        type: integer
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.6 Движение ТМЦ
+      tags:
+      - reports
+  /reports/inventory-movement/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      - description: ID салона
+        in: query
+        name: salon_id
+        type: integer
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.6 Движение ТМЦ
+      tags:
+      - reports
   /reports/master-activity:
     get:
       parameters:
@@ -1264,6 +1604,76 @@ paths:
       summary: Отчёт 2.2.4 Активность мастеров
       tags:
       - reports
+  /reports/master-activity/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.4 Активность мастеров
+      tags:
+      - reports
+  /reports/master-activity/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.4 Активность мастеров
+      tags:
+      - reports
   /reports/reviews:
     get:
       parameters:
@@ -1290,6 +1700,76 @@ paths:
       security:
       - BearerAuth: []
       summary: Отчёт 2.2.5 Отзывы
+      tags:
+      - reports
+  /reports/reviews/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.5 Отзывы
+      tags:
+      - reports
+  /reports/reviews/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.5 Отзывы
       tags:
       - reports
   /reports/salon-activity:
@@ -1324,6 +1804,76 @@ paths:
       summary: Отчёт 2.2.2 Активность филиалов
       tags:
       - reports
+  /reports/salon-activity/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.2 Активность филиалов
+      tags:
+      - reports
+  /reports/salon-activity/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.2 Активность филиалов
+      tags:
+      - reports
   /reports/service-popularity:
     get:
       parameters:
@@ -1354,6 +1904,76 @@ paths:
       security:
       - BearerAuth: []
       summary: Отчёт 2.2.3 Популярность услуг
+      tags:
+      - reports
+  /reports/service-popularity/html:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: HTML отчёт 2.2.3 Популярность услуг
+      tags:
+      - reports
+  /reports/service-popularity/pdf:
+    get:
+      parameters:
+      - description: Начало периода YYYY-MM-DD
+        in: query
+        name: from
+        type: string
+      - description: Конец периода YYYY-MM-DD
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: PDF отчёт 2.2.3 Популярность услуг
       tags:
       - reports
   /reviews:
